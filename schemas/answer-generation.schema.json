@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "answer": {
+      "type": "string",
+      "description": "The answer only, without explanation."
+    }
+  },
+  "required": ["answer"]
+}

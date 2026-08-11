@@ -1,0 +1,12 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "query": {
+      "type": "string",
+      "description": "A new query for retrieving the missing evidence."
+    }
+  },
+  "required": ["query"]
+}
+

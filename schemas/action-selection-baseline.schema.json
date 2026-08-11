@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "action": {
+      "type": "string",
+      "enum": ["answer", "search"]
+    },
+    "query": {
+      "type": "string"
+    }
+  },
+  "required": ["action"]
+}
+
