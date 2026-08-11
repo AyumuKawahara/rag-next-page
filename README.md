@@ -2,7 +2,7 @@
 
 論文「Agentic RAGにおける下位検索結果の追加取得の有効性」の補足資料を公開するためのリポジトリです。
 
-現時点では、論文4.5節に対応するプロンプトとJSON Schemaを掲載しています。
+論文4.5節に対応するプロンプトとJSON Schema、および紙面に収録しなかった実験結果を掲載しています。
 
 ## プロンプト
 
@@ -18,3 +18,8 @@
 - [検索クエリ生成](schemas/search-query-generation.schema.json)
 - [回答生成](schemas/answer-generation.schema.json)
 
+## 実験結果
+
+- [システム全体の評価結果](results/system-performance.md)
+- [条件別の集計値（CSV）](results/system-performance.csv)
+- [構成間の差と95%信頼区間（CSV）](results/system-performance-differences.csv)
