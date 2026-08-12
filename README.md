@@ -20,4 +20,5 @@
 
 ## 実験結果
 
+- [反実仮想評価における行動別の取得成否](results/counterfactual-action-effectiveness.md)
 - [システム全体の評価結果](results/system-performance.md)
