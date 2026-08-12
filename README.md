@@ -21,5 +21,3 @@
 ## 実験結果
 
 - [システム全体の評価結果](results/system-performance.md)
-- [条件別の集計値（CSV）](results/system-performance.csv)
-- [構成間の差と95%信頼区間（CSV）](results/system-performance-differences.csv)

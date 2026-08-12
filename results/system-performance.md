@@ -6,8 +6,6 @@
 - 回答生成モデル: Qwen3.5-4B
 - 追加探索行動の上限: 2回
 - `k=2, 5` はQwen3.5-27Bによる行動選択で実行済みの条件のみ掲載
-- 丸め前の値は [system-performance.csv](system-performance.csv) を参照
-- 構成間の差と95%信頼区間は [system-performance-differences.csv](system-performance-differences.csv) を参照
 
 ## IIRC
 
