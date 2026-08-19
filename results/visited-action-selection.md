@@ -1,18 +1,19 @@
-# システム実行時の行動選択分析
+# 4.4 システム実行時の行動選択分析
 
-論文5.3節に対応する集計結果です。論文では紙面の都合から `k=3` の結果のみを示し、ここでは `k=2, 3, 5` の結果を掲載します。
+論文4.4節に対応する集計結果です。論文では紙面の都合から `k=3` の結果のみを示し、ここでは補足として `k=2, 5` の結果を掲載します。
 
 提案構成を実行した際に実際に訪れた探索状態を対象としています。各状態から残りの探索予算内で到達できるSupport Recallを行動ごとに計算し、最大値を達成する行動を最良行動としました。同率の場合は回答生成までの追加探索回数が少ない行動を優先し、それでも同率の行動は最良行動集合として扱っています。
 
 - データセット: IIRC 559問、MuSiQue-Ans 2,417問
 - 追加探索行動の上限: 2回
 - 再検索クエリ生成モデル: Qwen3.5-4B
-- `next_page` のPrecision、RecallおよびF1は、同行動が最良行動集合に含まれるかを正解ラベルとして算出
-- 形式不正は状態数に含め、行動選択正解率では不正解として集計
+- 9Bおよび27Bの分析も、Qwen3.5-4Bが生成した再検索クエリを仮定した根拠取得上の評価
+- `next_page` のPrecision、RecallおよびF1は、同行動が根拠取得上の最良行動集合に含まれるかを正解ラベルとして算出
+- 形式不正は状態数に含め、反実仮想最良行動との一致率では不一致として集計
 
 ## 行動選択性能
 
-| データセット | k | 行動選択モデル | 状態数 | 正解率 | `next_page` Precision | `next_page` Recall | `next_page` F1 |
+| データセット | k | 行動選択モデル | 状態数 | 反実仮想最良行動との一致率 | `next_page` Precision | `next_page` Recall | `next_page` F1 |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | IIRC | 2 | 4B | 854 | 47.89% | 15.34% | 22.52% | 18.25% |
 |  |  | 9B | 808 | 55.45% | 0.00% | 0.00% | 0.00% |
@@ -33,73 +34,149 @@
 |  |  | 9B | 3,499 | 53.93% | 0.00% | 0.00% | 0.00% |
 |  |  | 27B | 4,110 | 57.47% | 66.67% | 0.14% | 0.29% |
 
-## 最良行動集合と実際の選択
+## 根拠取得上の最良行動集合とLLMの選択
 
-列は最良行動集合、行はLLMが実際に選択した行動を表します。実際の選択が最良行動集合に含まれるセルを太字で示します。`再検索・追加取得`列では、再検索と下位検索結果の追加取得が同率で最良です。
+各表では、上段の列見出しが反実仮想評価で求めた「根拠取得上の最良行動集合」、左側の行見出しが「LLMの選択」を表します。LLMの選択が最良行動集合に含まれるセルを太字で示します。`再検索・追加取得`列では、再検索と下位検索結果の追加取得が同率で最良です。
 `k=3`の詳細表は論文本文に掲載しているため、ここでは紙面に収録しなかった`k=2,5`を示します。
 
 ### k=2
 
 #### IIRC
 
-| 選択モデル | LLMの選択 | 回答 | 再検索 | 追加取得 | 再検索・追加取得 |
-|---:|---|---:|---:|---:|---:|
-| 4B | 回答 | **277** | 125 | 37 | 18 |
-|  | 再検索 | 107 | **96** | 20 | **11** |
-|  | 追加取得 | 73 | 65 | **10** | **15** |
-| 9B | 回答 | **290** | 114 | 40 | 27 |
-|  | 再検索 | 148 | **133** | 29 | **25** |
-|  | 追加取得 | 0 | 0 | **0** | **0** |
-|  | 形式不正 | 1 | 0 | 1 | 0 |
-| 27B | 回答 | **264** | 63 | 20 | 10 |
-|  | 再検索 | 262 | **197** | 70 | **51** |
-|  | 追加取得 | 1 | 1 | **0** | **0** |
+<table>
+  <thead>
+    <tr>
+      <th rowspan="2">選択モデル</th>
+      <th rowspan="2">LLMの選択</th>
+      <th colspan="4">根拠取得上の最良行動集合</th>
+    </tr>
+    <tr>
+      <th>回答</th>
+      <th>再検索</th>
+      <th>追加取得</th>
+      <th>再検索・追加取得</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td rowspan="3">4B</td><td>回答</td><td><strong>277</strong></td><td>125</td><td>37</td><td>18</td></tr>
+    <tr><td>再検索</td><td>107</td><td><strong>96</strong></td><td>20</td><td><strong>11</strong></td></tr>
+    <tr><td>追加取得</td><td>73</td><td>65</td><td><strong>10</strong></td><td><strong>15</strong></td></tr>
+  </tbody>
+  <tbody>
+    <tr><td rowspan="4">9B</td><td>回答</td><td><strong>290</strong></td><td>114</td><td>40</td><td>27</td></tr>
+    <tr><td>再検索</td><td>148</td><td><strong>133</strong></td><td>29</td><td><strong>25</strong></td></tr>
+    <tr><td>追加取得</td><td>0</td><td>0</td><td><strong>0</strong></td><td><strong>0</strong></td></tr>
+    <tr><td>形式不正</td><td>1</td><td>0</td><td>1</td><td>0</td></tr>
+  </tbody>
+  <tbody>
+    <tr><td rowspan="3">27B</td><td>回答</td><td><strong>264</strong></td><td>63</td><td>20</td><td>10</td></tr>
+    <tr><td>再検索</td><td>262</td><td><strong>197</strong></td><td>70</td><td><strong>51</strong></td></tr>
+    <tr><td>追加取得</td><td>1</td><td>1</td><td><strong>0</strong></td><td><strong>0</strong></td></tr>
+  </tbody>
+</table>
 
 #### MuSiQue-Ans
 
-| 選択モデル | LLMの選択 | 回答 | 再検索 | 追加取得 | 再検索・追加取得 |
-|---:|---|---:|---:|---:|---:|
-| 4B | 回答 | **722** | 333 | 262 | 208 |
-|  | 再検索 | 454 | **497** | 352 | **276** |
-|  | 追加取得 | 171 | 271 | **256** | **135** |
-| 9B | 回答 | **835** | 369 | 305 | 218 |
-|  | 再検索 | 493 | **705** | 549 | **376** |
-|  | 追加取得 | 0 | 0 | **0** | **0** |
-|  | 形式不正 | 2 | 0 | 0 | 0 |
-| 27B | 回答 | **765** | 128 | 125 | 99 |
-|  | 再検索 | 952 | **1,015** | 757 | **499** |
-|  | 追加取得 | 2 | 0 | **1** | **1** |
+<table>
+  <thead>
+    <tr>
+      <th rowspan="2">選択モデル</th>
+      <th rowspan="2">LLMの選択</th>
+      <th colspan="4">根拠取得上の最良行動集合</th>
+    </tr>
+    <tr>
+      <th>回答</th>
+      <th>再検索</th>
+      <th>追加取得</th>
+      <th>再検索・追加取得</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td rowspan="3">4B</td><td>回答</td><td><strong>722</strong></td><td>333</td><td>262</td><td>208</td></tr>
+    <tr><td>再検索</td><td>454</td><td><strong>497</strong></td><td>352</td><td><strong>276</strong></td></tr>
+    <tr><td>追加取得</td><td>171</td><td>271</td><td><strong>256</strong></td><td><strong>135</strong></td></tr>
+  </tbody>
+  <tbody>
+    <tr><td rowspan="4">9B</td><td>回答</td><td><strong>835</strong></td><td>369</td><td>305</td><td>218</td></tr>
+    <tr><td>再検索</td><td>493</td><td><strong>705</strong></td><td>549</td><td><strong>376</strong></td></tr>
+    <tr><td>追加取得</td><td>0</td><td>0</td><td><strong>0</strong></td><td><strong>0</strong></td></tr>
+    <tr><td>形式不正</td><td>2</td><td>0</td><td>0</td><td>0</td></tr>
+  </tbody>
+  <tbody>
+    <tr><td rowspan="3">27B</td><td>回答</td><td><strong>765</strong></td><td>128</td><td>125</td><td>99</td></tr>
+    <tr><td>再検索</td><td>952</td><td><strong>1,015</strong></td><td>757</td><td><strong>499</strong></td></tr>
+    <tr><td>追加取得</td><td>2</td><td>0</td><td><strong>1</strong></td><td><strong>1</strong></td></tr>
+  </tbody>
+</table>
 
 ### k=5
 
 #### IIRC
 
-| 選択モデル | LLMの選択 | 回答 | 再検索 | 追加取得 | 再検索・追加取得 |
-|---:|---|---:|---:|---:|---:|
-| 4B | 回答 | **304** | 129 | 20 | 21 |
-|  | 再検索 | 115 | **152** | 18 | **15** |
-|  | 追加取得 | 20 | 28 | **3** | **3** |
-|  | 形式不正 | 6 | 3 | 0 | 0 |
-| 9B | 回答 | **278** | 143 | 21 | 20 |
-|  | 再検索 | 125 | **155** | 20 | **19** |
-|  | 追加取得 | 0 | 0 | **0** | **0** |
-|  | 形式不正 | 7 | 0 | 0 | 0 |
-| 27B | 回答 | **340** | 107 | 32 | 19 |
-|  | 再検索 | 121 | **184** | 22 | **24** |
-|  | 追加取得 | 1 | 1 | **0** | **0** |
-|  | 形式不正 | 4 | 0 | 1 | 0 |
+<table>
+  <thead>
+    <tr>
+      <th rowspan="2">選択モデル</th>
+      <th rowspan="2">LLMの選択</th>
+      <th colspan="4">根拠取得上の最良行動集合</th>
+    </tr>
+    <tr>
+      <th>回答</th>
+      <th>再検索</th>
+      <th>追加取得</th>
+      <th>再検索・追加取得</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td rowspan="4">4B</td><td>回答</td><td><strong>304</strong></td><td>129</td><td>20</td><td>21</td></tr>
+    <tr><td>再検索</td><td>115</td><td><strong>152</strong></td><td>18</td><td><strong>15</strong></td></tr>
+    <tr><td>追加取得</td><td>20</td><td>28</td><td><strong>3</strong></td><td><strong>3</strong></td></tr>
+    <tr><td>形式不正</td><td>6</td><td>3</td><td>0</td><td>0</td></tr>
+  </tbody>
+  <tbody>
+    <tr><td rowspan="4">9B</td><td>回答</td><td><strong>278</strong></td><td>143</td><td>21</td><td>20</td></tr>
+    <tr><td>再検索</td><td>125</td><td><strong>155</strong></td><td>20</td><td><strong>19</strong></td></tr>
+    <tr><td>追加取得</td><td>0</td><td>0</td><td><strong>0</strong></td><td><strong>0</strong></td></tr>
+    <tr><td>形式不正</td><td>7</td><td>0</td><td>0</td><td>0</td></tr>
+  </tbody>
+  <tbody>
+    <tr><td rowspan="4">27B</td><td>回答</td><td><strong>340</strong></td><td>107</td><td>32</td><td>19</td></tr>
+    <tr><td>再検索</td><td>121</td><td><strong>184</strong></td><td>22</td><td><strong>24</strong></td></tr>
+    <tr><td>追加取得</td><td>1</td><td>1</td><td><strong>0</strong></td><td><strong>0</strong></td></tr>
+    <tr><td>形式不正</td><td>4</td><td>0</td><td>1</td><td>0</td></tr>
+  </tbody>
+</table>
 
 #### MuSiQue-Ans
 
-| 選択モデル | LLMの選択 | 回答 | 再検索 | 追加取得 | 再検索・追加取得 |
-|---:|---|---:|---:|---:|---:|
-| 4B | 回答 | **920** | 151 | 157 | 157 |
-|  | 再検索 | 753 | **480** | 424 | **460** |
-|  | 追加取得 | 139 | 147 | **87** | **138** |
-| 9B | 回答 | **1,041** | 303 | 238 | 313 |
-|  | 再検索 | 417 | **452** | 340 | **394** |
-|  | 追加取得 | 0 | 0 | **0** | **0** |
-|  | 形式不正 | 0 | 0 | 1 | 0 |
-| 27B | 回答 | **1,050** | 100 | 115 | 109 |
-|  | 再検索 | 888 | **687** | 535 | **623** |
-|  | 追加取得 | 1 | 0 | **1** | **1** |
+<table>
+  <thead>
+    <tr>
+      <th rowspan="2">選択モデル</th>
+      <th rowspan="2">LLMの選択</th>
+      <th colspan="4">根拠取得上の最良行動集合</th>
+    </tr>
+    <tr>
+      <th>回答</th>
+      <th>再検索</th>
+      <th>追加取得</th>
+      <th>再検索・追加取得</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td rowspan="3">4B</td><td>回答</td><td><strong>920</strong></td><td>151</td><td>157</td><td>157</td></tr>
+    <tr><td>再検索</td><td>753</td><td><strong>480</strong></td><td>424</td><td><strong>460</strong></td></tr>
+    <tr><td>追加取得</td><td>139</td><td>147</td><td><strong>87</strong></td><td><strong>138</strong></td></tr>
+  </tbody>
+  <tbody>
+    <tr><td rowspan="4">9B</td><td>回答</td><td><strong>1,041</strong></td><td>303</td><td>238</td><td>313</td></tr>
+    <tr><td>再検索</td><td>417</td><td><strong>452</strong></td><td>340</td><td><strong>394</strong></td></tr>
+    <tr><td>追加取得</td><td>0</td><td>0</td><td><strong>0</strong></td><td><strong>0</strong></td></tr>
+    <tr><td>形式不正</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+  </tbody>
+  <tbody>
+    <tr><td rowspan="3">27B</td><td>回答</td><td><strong>1,050</strong></td><td>100</td><td>115</td><td>109</td></tr>
+    <tr><td>再検索</td><td>888</td><td><strong>687</strong></td><td>535</td><td><strong>623</strong></td></tr>
+    <tr><td>追加取得</td><td>1</td><td>0</td><td><strong>1</strong></td><td><strong>1</strong></td></tr>
+  </tbody>
+</table>
